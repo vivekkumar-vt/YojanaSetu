@@ -8,6 +8,12 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import SchemeDetail from './pages/SchemeDetail';
 import Dashboard from './pages/Dashboard';
+import FindSchemes from './pages/FindSchemes';
+import SchemeResults from './pages/SchemeResults';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import AccessibilityPage from './pages/AccessibilityPage';
+import { analyticsAPI } from './api';
 
 function App() {
   return (
@@ -16,7 +22,12 @@ function App() {
         <Route index element={<Landing />} />
         <Route path="home" element={<Home />} />
         <Route path="about" element={<About />} />
-        <Route path="scheme/:id" element={<SchemeDetail />} />
+        <Route path="privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="accessibility" element={<AccessibilityPage />} />
+        <Route path="find-schemes" element={<ProtectedRoute><FindSchemes /></ProtectedRoute>} />
+        <Route path="results" element={<ProtectedRoute><SchemeResults /></ProtectedRoute>} />
+        <Route path="scheme/:id" element={<ProtectedRoute><SchemeDetail /></ProtectedRoute>} />
         <Route
           path="dashboard"
           element={

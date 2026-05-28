@@ -1,14 +1,10 @@
 [
   {
-    "id": "1775025190886",
+    "id": "1779950881892",
     "name": "Test User",
     "email": "test@example.com",
-    "password": "$2a$10$sTcSJP1HQ5Y46vyAuQjrM.Zl/dhUgvjEbF03fbpo86CIxgaQGirfS",
-    "aadhaar": "",
-    "savedSchemes": [
-      1,
-      2
-    ],
-    "createdAt": "2026-04-01T06:33:10.886Z"
+    "password": "$2a$10$1vWG4FCzPzXYG6c8xF8k/ef5Ni1U7QsCWL1PdqUDrBlSNKwFn4j16",
+    "savedSchemes": [],
+    "createdAt": "2026-05-28T06:48:01.892Z"
   }
 ]

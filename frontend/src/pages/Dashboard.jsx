@@ -1,17 +1,28 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { User, Mail, CreditCard, Bookmark, ArrowRight, LogOut, Calendar, Shield } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  User, Mail, CreditCard, Bookmark, ArrowRight, LogOut,
+  Calendar, Shield, Sparkles, TrendingUp, Search
+} from 'lucide-react';
 import { Activity, Tractor, BookOpen, Briefcase, Home as HomeIcon, Heart, Hammer, Monitor } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { schemesAPI } from '../api';
 
-const ICON_MAP = {
-  Activity, Tractor, BookOpen, Briefcase, Home: HomeIcon, Heart, Hammer, Monitor
+const ICON_MAP = { Activity, Tractor, BookOpen, Briefcase, Home: HomeIcon, Heart, Hammer, Monitor };
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [savedSchemes, setSavedSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,103 +40,136 @@ const Dashboard = () => {
     fetchSaved();
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const statCards = [
+    {
+      icon: Bookmark, label: 'Saved Schemes', value: savedSchemes.length,
+      gradient: 'from-indigo-500 to-violet-500', bg: 'bg-indigo-50', iconColor: 'text-indigo-600',
+    },
+    {
+      icon: Shield, label: 'Account Status', value: 'Verified',
+      gradient: 'from-emerald-500 to-green-500', bg: 'bg-emerald-50', iconColor: 'text-emerald-600',
+    },
+    {
+      icon: Calendar, label: 'Member Since',
+      value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'N/A',
+      gradient: 'from-amber-500 to-orange-500', bg: 'bg-amber-50', iconColor: 'text-amber-600',
+    },
+  ];
+
   return (
-    <div className="bg-gray-50 min-h-screen pb-24">
-      {/* Profile Banner */}
-      <div className="gradient-bg py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
-          <div className="absolute w-96 h-96 bg-white rounded-full -top-20 -right-20"></div>
-          <div className="absolute w-64 h-64 bg-white rounded-full -bottom-10 -left-10"></div>
+    <div className="mesh-bg min-h-screen pb-24">
+
+      {/* ─── HERO BANNER ──────────────────────────────────── */}
+      <div className="relative gradient-bg py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-white/10 blur-2xl" />
+          <svg className="absolute inset-0 w-full h-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
+            <defs><pattern id="dash-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="white" /></pattern></defs>
+            <rect width="100%" height="100%" fill="url(#dash-grid)" />
+          </svg>
         </div>
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 shadow-xl">
-              <span className="text-4xl font-bold text-white">
+        <div className="max-w-4xl mx-auto relative z-10 pt-10">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-6"
+          >
+            {/* Avatar */}
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: 3 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+              className="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 shadow-2xl shadow-black/20 flex-shrink-0"
+            >
+              <span className="text-4xl font-black text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </span>
-            </div>
+            </motion.div>
+
+            {/* Info */}
             <div className="text-center sm:text-left">
-              <h1 className="text-3xl font-bold text-white mb-1">
-                Welcome, {user?.name || 'User'}!
+              <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
+                <Sparkles className="w-5 h-5 text-yellow-300" />
+                <span className="text-white/70 text-sm font-semibold">Your Dashboard</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-black text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                Welcome, {user?.name?.split(' ')[0] || 'User'}!
               </h1>
-              <p className="text-white/80 text-lg">
-                Manage your profile and saved government schemes
-              </p>
-              <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-4">
-                <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full">
-                  <Mail className="w-3.5 h-3.5" /> {user?.email}
+              <p className="text-white/75 mb-4">Manage your profile and saved government schemes</p>
+              <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm px-3.5 py-1.5 rounded-full font-medium">
+                  <Mail className="w-3.5 h-3.5 opacity-80" /> {user?.email}
                 </span>
                 {user?.aadhaar && (
-                  <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full">
-                    <CreditCard className="w-3.5 h-3.5" /> Aadhaar: ****{user.aadhaar.slice(-4)}
+                  <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm px-3.5 py-1.5 rounded-full font-medium">
+                    <CreditCard className="w-3.5 h-3.5 opacity-80" /> ****{user.aadhaar.slice(-4)}
                   </span>
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4"
-          >
-            <div className="p-3 rounded-xl bg-primary/10">
-              <Bookmark className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{savedSchemes.length}</p>
-              <p className="text-sm text-gray-500">Saved Schemes</p>
-            </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4"
-          >
-            <div className="p-3 rounded-xl bg-secondary/10">
-              <Shield className="w-6 h-6 text-secondary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">Verified</p>
-              <p className="text-sm text-gray-500">Account Status</p>
-            </div>
-          </motion.div>
+        {/* ─── STAT CARDS ───────────────────────────────────── */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"
+        >
+          {statCards.map((stat) => (
+            <motion.div
+              key={stat.label}
+              variants={itemVariants}
+              whileHover={{ y: -5, transition: { duration: 0.25 } }}
+              className="stat-card flex items-center gap-4"
+            >
+              <div className={`w-12 h-12 rounded-2xl ${stat.bg} flex items-center justify-center flex-shrink-0`}>
+                <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
+              </div>
+              <div>
+                <p className={`text-2xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`} style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {stat.value}
+                </p>
+                <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4"
-          >
-            <div className="p-3 rounded-xl bg-orange-100">
-              <Calendar className="w-6 h-6 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'N/A'}
-              </p>
-              <p className="text-sm text-gray-500">Member Since</p>
-            </div>
-          </motion.div>
-        </div>
+        {/* ─── CTA ROW ──────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="flex flex-wrap gap-3 mb-10"
+        >
+          <Link to="/find-schemes" className="btn-primary text-sm px-5 py-3">
+            <Search className="w-4 h-4" /> Find New Schemes
+          </Link>
+          <Link to="/home" className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold text-indigo-700 bg-white border-2 border-indigo-100 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-300 shadow-sm">
+            <TrendingUp className="w-4 h-4" /> Browse All Schemes
+          </Link>
+        </motion.div>
 
-        {/* Saved Schemes */}
-        <div className="mb-8">
+        {/* ─── SAVED SCHEMES ────────────────────────────────── */}
+        <div className="mb-10">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Bookmark className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <Bookmark className="w-6 h-6 text-indigo-600" />
               Saved Schemes
             </h2>
-            <Link to="/home" className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors">
+            <Link to="/home" className="text-sm font-bold text-indigo-600 hover:text-indigo-800 hover:underline transition-colors">
               Browse More →
             </Link>
           </div>
@@ -133,16 +177,8 @@ const Dashboard = () => {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[1, 2].map(i => (
-                <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-pulse">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
-                    <div className="flex-1">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                    </div>
-                  </div>
-                  <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                <div key={i} className="bg-white rounded-3xl border border-slate-100 p-6 h-40">
+                  <div className="shimmer h-full rounded-2xl" />
                 </div>
               ))}
             </div>
@@ -155,26 +191,27 @@ const Dashboard = () => {
                     key={scheme.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: index * 0.1, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -4, transition: { duration: 0.25 } }}
                   >
                     <Link
                       to={`/scheme/${scheme.id}`}
-                      className="block bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-300 group"
+                      className="block bg-white rounded-3xl shadow-sm border border-slate-100 p-6 hover:shadow-xl hover:shadow-indigo-100/50 transition-all duration-300 group"
                     >
                       <div className="flex items-start gap-4">
-                        <div className={`p-3 rounded-xl ${scheme.color}`}>
-                          <IconComponent className="w-6 h-6" />
+                        <div className="p-3 rounded-2xl bg-indigo-50 flex-shrink-0">
+                          <IconComponent className="w-6 h-6 text-indigo-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors truncate">
+                          <h3 className="font-black text-slate-900 group-hover:text-indigo-700 transition-colors truncate text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                             {scheme.title}
                           </h3>
-                          <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
                             {scheme.category}
                           </span>
-                          <p className="text-sm text-gray-600 mt-2 line-clamp-2">{scheme.description}</p>
-                          <div className="mt-3 flex items-center text-sm font-semibold text-primary">
-                            View Details <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                          <p className="text-sm text-slate-500 mt-2 line-clamp-2">{scheme.description}</p>
+                          <div className="mt-3 flex items-center text-sm font-bold text-indigo-600">
+                            View Details <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1.5 transition-transform duration-200" />
                           </div>
                         </div>
                       </div>
@@ -184,31 +221,33 @@ const Dashboard = () => {
               })}
             </div>
           ) : (
-            <div className="text-center bg-white p-12 rounded-2xl border border-gray-100 shadow-sm">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
-                <Bookmark className="h-8 w-8 text-gray-400" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center bg-white p-14 rounded-3xl border border-slate-100 shadow-sm"
+            >
+              <div className="w-20 h-20 gradient-bg rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-300/30">
+                <Bookmark className="h-9 w-9 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">No saved schemes yet</h3>
-              <p className="mt-1 text-gray-500 mb-6">Start browsing and save schemes that interest you.</p>
-              <Link
-                to="/home"
-                className="inline-flex items-center gap-2 gradient-bg text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/25"
-              >
+              <h3 className="text-xl font-black text-slate-900 mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>No saved schemes yet</h3>
+              <p className="text-slate-500 mb-6">Start browsing and save schemes that interest you.</p>
+              <Link to="/home" className="btn-primary text-sm px-6 py-3">
                 Browse Schemes <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
+            </motion.div>
           )}
         </div>
 
-        {/* Logout Section */}
-        <div className="border-t border-gray-200 pt-6">
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-700 transition-colors px-4 py-2 rounded-xl hover:bg-red-50"
+        {/* ─── SIGN OUT ─────────────────────────────────────── */}
+        <div className="border-t border-slate-200 pt-6">
+          <motion.button
+            whileHover={{ scale: 1.02, x: 4 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-700 transition-colors px-4 py-2.5 rounded-2xl hover:bg-red-50"
           >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
+            <LogOut className="w-4 h-4" /> Sign Out
+          </motion.button>
         </div>
       </div>
     </div>
