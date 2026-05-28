@@ -1,13 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink, Calendar, Building2, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ArrowLeft, CheckCircle2, FileText, IndianRupee, Shield, 
+  Share2, Bookmark, BookmarkCheck, ExternalLink, Calendar,
+  ArrowRight, Info, Award, Users, MapPin, Tag, Landmark, Sparkles
+} from 'lucide-react';
 import { Activity, Tractor, BookOpen, Briefcase, Home as HomeIcon, Heart, Hammer, Monitor } from 'lucide-react';
 import { schemesAPI } from '../api';
 import { useAuth } from '../context/AuthContext';
+import DocumentChecklist from '../components/DocumentChecklist';
 
-const ICON_MAP = {
-  Activity, Tractor, BookOpen, Briefcase, Home: HomeIcon, Heart, Hammer, Monitor
+const ICON_MAP = { Activity, Tractor, BookOpen, Briefcase, Home: HomeIcon, Heart, Hammer, Monitor };
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+  }
 };
 
 const SchemeDetail = () => {
@@ -17,225 +37,268 @@ const SchemeDetail = () => {
   const [scheme, setScheme] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const isSaved = user?.savedSchemes?.includes(parseInt(id));
+  const [isSavedLocal, setIsSavedLocal] = useState(false);
 
   useEffect(() => {
     const fetchScheme = async () => {
       try {
         const data = await schemesAPI.getById(id);
         setScheme(data.scheme);
+        setIsSavedLocal(user?.savedSchemes?.includes(data.scheme.id));
       } catch (err) {
-        setError('Failed to load scheme details.');
+        setError('Scheme not found or error loading details.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
     fetchScheme();
-  }, [id]);
+  }, [id, user]);
 
   const handleSave = async () => {
-    if (!isAuthenticated) {
-      navigate('/signin');
-      return;
-    }
-    setSaving(true);
+    if (!isAuthenticated) return;
     try {
-      const data = await schemesAPI.toggleSave(parseInt(id));
+      const data = await schemesAPI.toggleSave(scheme.id);
       updateSavedSchemes(data.savedSchemes);
+      setIsSavedLocal(data.savedSchemes.includes(scheme.id));
     } catch (err) {
       console.error('Save error:', err);
-    } finally {
-      setSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-          <p className="text-gray-500 font-medium">Loading scheme details...</p>
-        </div>
+  if (loading) return (
+    <div className="mesh-bg min-h-screen flex items-center justify-center pt-20">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin shadow-xl" />
+        <p className="font-black text-indigo-600 uppercase tracking-widest text-sm animate-pulse">Scanning Scheme Data...</p>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (error || !scheme) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center bg-white p-12 rounded-2xl shadow-sm border border-gray-100 max-w-md">
-          <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Scheme Not Found</h3>
-          <p className="text-gray-500 mb-6">{error || 'The scheme you are looking for does not exist.'}</p>
-          <Link to="/home" className="gradient-bg text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all">
-            Browse All Schemes
-          </Link>
+  if (error || !scheme) return (
+    <div className="mesh-bg min-h-screen flex items-center justify-center p-6 text-center">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-12 rounded-[3rem] max-w-lg shadow-2xl">
+        <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+          <Info className="w-10 h-10 text-red-400" />
         </div>
-      </div>
-    );
-  }
+        <h2 className="text-3xl font-black text-slate-900 mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>Oops! Not Found</h2>
+        <p className="text-slate-500 mb-10 text-lg leading-relaxed">{error || "The scheme you're looking for doesn't exist or has been removed."}</p>
+        <Link to="/home" className="btn-primary px-10">Back to All Schemes</Link>
+      </motion.div>
+    </div>
+  );
 
   const IconComponent = ICON_MAP[scheme.icon] || Activity;
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-24">
-      {/* Header Banner */}
-      <div className="gradient-bg py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
-          <div className="absolute w-96 h-96 bg-white rounded-full -top-20 -right-20"></div>
-          <div className="absolute w-64 h-64 bg-white rounded-full -bottom-10 -left-10"></div>
+    <div className="mesh-bg min-h-screen pb-24">
+      {/* ─── HERO HEADER ─────────────────────────────────────── */}
+      <div className="relative gradient-bg py-24 px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/10 rounded-full blur-3xl float-anim-slow" />
+          <div className="absolute -bottom-32 left-0 w-[450px] h-[450px] bg-indigo-500/20 rounded-full blur-3xl float-anim" />
         </div>
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          <Link to="/home" className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-6 text-sm font-medium">
-            <ArrowLeft className="w-4 h-4" />
-            Back to All Schemes
-          </Link>
-          <div className="flex items-start gap-4">
-            <div className={`p-4 rounded-2xl bg-white/20 backdrop-blur-sm`}>
-              <IconComponent className="w-8 h-8 text-white" />
-            </div>
-            <div className="flex-1">
-              <span className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                {scheme.category}
-              </span>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">{scheme.title}</h1>
-              <p className="text-white/80 text-lg">{scheme.description}</p>
-            </div>
+        <div className="max-w-6xl mx-auto relative z-10 pt-10">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+             <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-all mb-10 font-black text-sm uppercase tracking-widest group">
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1.5 transition-transform" /> Back to listings
+             </button>
+          </motion.div>
+
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex-1">
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <span className="badge bg-white/20 backdrop-blur-md text-white border-white/20 text-xs font-black uppercase tracking-widest px-4 py-2">
+                  <Tag className="w-3.5 h-3.5" /> {scheme.category}
+                </span>
+                <span className="badge bg-emerald-400 text-white border-none text-xs font-black uppercase tracking-widest px-4 py-2 shadow-lg shadow-emerald-500/30">
+                  <Shield className="w-3.5 h-3.5" /> Active Scheme
+                </span>
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-tight mb-8" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                {scheme.title}
+              </h1>
+              
+              <div className="flex flex-wrap gap-6 items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 p-3">
+                    <IconComponent className="w-full h-full text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Department</p>
+                    <p className="text-white font-black text-lg">Central Welfare</p>
+                  </div>
+                </div>
+                <div className="h-10 w-px bg-white/20 hidden sm:block" />
+                <div className="flex items-center gap-3">
+                   <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/30 p-3">
+                      <IndianRupee className="w-full h-full text-white" />
+                   </div>
+                   <div>
+                     <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Max Benefit</p>
+                     <p className="text-white font-black text-lg">Direct Transfer</p>
+                   </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="flex-shrink-0">
+               <div className="glass-card p-4 rounded-[2.5rem] flex flex-col gap-3 shadow-2xl border-white/40">
+                  <button 
+                    onClick={handleSave}
+                    className={`flex items-center justify-center gap-3 px-10 py-5 rounded-[2rem] font-black text-lg transition-all duration-300 ${
+                      isSavedLocal 
+                        ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-400/40' 
+                        : 'bg-white text-indigo-600 border-2 border-indigo-50 hover:border-indigo-200'
+                    }`}
+                  >
+                    {isSavedLocal ? <BookmarkCheck className="w-6 h-6" /> : <Bookmark className="w-6 h-6" />}
+                    {isSavedLocal ? 'Saved to Profile' : 'Save for Later'}
+                  </button>
+                  <a
+                    href={scheme.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-3 px-10 py-5 rounded-[2rem] bg-emerald-600 text-white font-black text-lg shadow-xl shadow-emerald-600/30 hover:bg-emerald-500 hover:shadow-emerald-600/50 hover:-translate-y-1 transition-all no-underline"
+                  >
+                    Apply Now <ExternalLink className="w-6 h-6" />
+                  </a>
+                  <div className="flex items-center justify-center gap-2 mt-2 pt-2 border-t border-indigo-50">
+                     <button className="p-3 rounded-2xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all" aria-label="Share this scheme"><Share2 className="w-5 h-5" /></button>
+                     <div className="w-px h-6 bg-slate-100" />
+                     <button className="p-3 rounded-2xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all" aria-label="More information"><Info className="w-5 h-5" /></button>
+                  </div>
+               </div>
+            </motion.div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-        >
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Benefits */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-primary" />
-                Key Benefits
-              </h2>
-              <ul className="space-y-3">
-                {scheme.benefits?.map((benefit, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <span className="text-gray-700">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Eligibility */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-secondary" />
-                Eligibility Criteria
-              </h2>
-              <p className="text-gray-700 bg-secondary/5 rounded-xl p-4 border border-secondary/10">
-                {scheme.eligibility}
+      {/* ─── CONTENT BODY ─────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-6 lg:px-8 -mt-8 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          
+          {/* Main Content Column */}
+          <motion.div 
+            variants={containerVariants} 
+            initial="hidden" 
+            animate="visible" 
+            className="lg:col-span-2 space-y-10"
+          >
+            {/* Description */}
+            <motion.div variants={itemVariants} className="bg-white rounded-[3rem] p-10 lg:p-14 shadow-xl border border-slate-50 transition-colors">
+              <div className="flex items-center gap-4 mb-8">
+                 <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center shadow-inner">
+                    <BookOpen className="w-6 h-6 text-indigo-500" />
+                 </div>
+                 <h2 className="text-3xl font-black text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>About the Scheme</h2>
+              </div>
+              <p className="text-xl text-slate-600 leading-[1.8] font-medium mb-10">
+                {scheme.description}
               </p>
-            </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                 <div className="p-8 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100/50">
+                    <Sparkles className="w-8 h-8 text-indigo-500 mb-4" />
+                    <h4 className="font-black text-slate-900 mb-2">Scheme Status</h4>
+                    <p className="text-sm text-slate-600 font-bold uppercase tracking-widest text-indigo-600">Active & Rolling</p>
+                 </div>
+                 <div className="p-8 rounded-[2.5rem] bg-pink-50/50 border border-pink-100/50">
+                    <Calendar className="w-8 h-8 text-pink-500 mb-4" />
+                    <h4 className="font-black text-slate-900 mb-2">Launch Date</h4>
+                    <p className="text-sm text-slate-600 font-bold uppercase tracking-widest text-pink-600">Updated Jan 2024</p>
+                 </div>
+              </div>
+            </motion.div>
 
-            {/* Documents */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-orange-500" />
-                Required Documents
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {scheme.documents?.map((doc, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
-                    <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm">{doc}</span>
-                  </div>
+            {/* Benefits */}
+            <motion.div variants={itemVariants} className="bg-white rounded-[3rem] p-10 lg:p-14 shadow-xl border border-slate-50">
+               <div className="flex items-center gap-4 mb-10">
+                 <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-inner">
+                    <Award className="w-6 h-6 text-emerald-500" />
+                 </div>
+                 <h2 className="text-3xl font-black text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>Key Benefits</h2>
+              </div>
+              <div className="space-y-6">
+                {scheme.benefits?.map((benefit, i) => (
+                  <motion.div 
+                    key={i} 
+                    initial={{ opacity: 0, x: -10 }} 
+                    whileInView={{ opacity: 1, x: 0 }} 
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-start gap-5 p-6 rounded-3xl bg-slate-50 border border-slate-100/50 hover:bg-emerald-50/30 hover:border-emerald-100 transition-all group"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-1 group-hover:scale-110 transition-transform">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <span className="text-lg text-slate-700 font-bold leading-relaxed">{benefit}</span>
+                  </motion.div>
                 ))}
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Action Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className={`w-full flex justify-center items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 mb-4 ${
-                  isSaved
-                    ? 'bg-primary/10 text-primary ring-1 ring-primary/20 hover:bg-primary/20'
-                    : 'gradient-bg text-white shadow-lg shadow-primary/25 hover:opacity-90 hover:-translate-y-0.5'
-                } disabled:opacity-50`}
-              >
-                {saving ? (
-                  <div className="w-5 h-5 border-2 border-current/30 border-t-current rounded-full animate-spin"></div>
-                ) : isSaved ? (
-                  <>
-                    <BookmarkCheck className="w-5 h-5" />
-                    Saved
-                  </>
-                ) : (
-                  <>
-                    <Bookmark className="w-5 h-5" />
-                    Save Scheme
-                  </>
-                )}
-              </button>
-
-              {scheme.website && (
-                <a
-                  href={scheme.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex justify-center items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 bg-gray-50 ring-1 ring-gray-200 hover:bg-gray-100 transition-all"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Visit Official Website
-                </a>
-              )}
-
-              <div className="mt-6 space-y-4 pt-6 border-t border-gray-100">
-                {scheme.ministry && (
-                  <div className="flex items-start gap-3">
-                    <Building2 className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Ministry</p>
-                      <p className="text-sm text-gray-900 font-medium">{scheme.ministry}</p>
-                    </div>
-                  </div>
-                )}
-                {scheme.launchDate && (
-                  <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Launch Date</p>
-                      <p className="text-sm text-gray-900 font-medium">
-                        {new Date(scheme.launchDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-                )}
+          {/* Sidebar Column */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="space-y-8">
+            
+            {/* Eligibility Sidebar Card */}
+            <div className="bg-indigo-600 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                 <Users className="w-24 h-24" />
               </div>
-
-              {!isAuthenticated && (
-                <div className="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                  <p className="text-xs text-yellow-800 font-medium">
-                    <Link to="/signin" className="text-primary font-semibold hover:underline">Sign in</Link> to save schemes and track your applications.
-                  </p>
-                </div>
-              )}
+              <h3 className="text-2xl font-black mb-8 relative z-10" style={{ fontFamily: 'Outfit, sans-serif' }}>Who Can Apply?</h3>
+              <div className="space-y-6 relative z-10">
+                 <div className="flex items-start gap-4">
+                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mt-1"><MapPin className="w-3.5 h-3.5" /></div>
+                    <div>
+                       <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-1">State Eligibility</p>
+                       <p className="font-black">PAN India / Central</p>
+                    </div>
+                 </div>
+                 <div className="flex items-start gap-4">
+                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mt-1"><Info className="w-3.5 h-3.5" /></div>
+                    <div>
+                       <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Target Group</p>
+                       <p className="font-black">{scheme.eligibility}</p>
+                    </div>
+                 </div>
+                 <div className="pt-6 border-t border-white/20">
+                    <p className="text-sm font-medium leading-relaxed italic opacity-90">
+                      "Eligible citizens can apply through the nearest Seva Kendra or the official portal."
+                    </p>
+                 </div>
+              </div>
             </div>
-          </div>
-        </motion.div>
+
+            {/* Document Checklist Modal / Card */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+               <DocumentChecklist documents={scheme.documents} />
+            </motion.div>
+
+            {/* Quick Actions */}
+            <div className="glass-card p-10 rounded-[3rem] border-white/60">
+               <h3 className="text-xl font-black text-slate-900 mb-6" style={{ fontFamily: 'Outfit, sans-serif' }}>Helpful Resources</h3>
+               <div className="space-y-4">
+                  <a href="#" className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-indigo-50 transition-colors group">
+                    <div className="flex items-center gap-3">
+                       <FileText className="w-5 h-5 text-indigo-500" />
+                       <span className="text-sm font-bold text-slate-700">Official Circular</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                  </a>
+                  <a href="#" className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-indigo-50 transition-colors group">
+                    <div className="flex items-center gap-3">
+                       <Landmark className="w-5 h-5 text-indigo-500" />
+                       <span className="text-sm font-bold text-slate-700">Participating Banks</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                  </a>
+               </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

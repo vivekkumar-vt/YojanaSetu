@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
       } catch (err) {
         console.error('Auto-login failed:', err);
         localStorage.removeItem('yojana_token');
+        localStorage.removeItem('yojana_user');
       } finally {
         setLoading(false);
       }
@@ -67,6 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('yojana_token');
+    localStorage.removeItem('yojana_user');
     setUser(null);
   };
 

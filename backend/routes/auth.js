@@ -26,7 +26,7 @@ const writeUsers = (users) => {
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, aadhaar } = req.body;
+    const { name, email, password } = req.body;
 
     // Validation
     if (!name || !email || !password) {
@@ -55,7 +55,6 @@ router.post('/register', async (req, res) => {
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      aadhaar: aadhaar || '',
       savedSchemes: [],
       createdAt: new Date().toISOString(),
     };
@@ -76,7 +75,6 @@ router.post('/register', async (req, res) => {
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        aadhaar: newUser.aadhaar,
         savedSchemes: newUser.savedSchemes,
       },
     });
@@ -122,7 +120,6 @@ router.post('/login', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        aadhaar: user.aadhaar,
         savedSchemes: user.savedSchemes,
       },
     });
@@ -147,7 +144,6 @@ router.get('/me', auth, (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        aadhaar: user.aadhaar,
         savedSchemes: user.savedSchemes,
         createdAt: user.createdAt,
       },
