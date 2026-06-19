@@ -27,24 +27,20 @@ describe('Recommendations Routes Integration Tests', () => {
   ];
 
   beforeAll(() => {
-    // 1. Back up data files
     if (fs.existsSync(SCHEMES_FILE)) {
       originalSchemesData = fs.readFileSync(SCHEMES_FILE, 'utf-8');
     } else {
       originalSchemesData = '[]';
     }
 
-    // 2. Setup mock data
     fs.writeFileSync(SCHEMES_FILE, JSON.stringify(mockSchemes, null, 2));
 
-    // 3. Create express app
     app = express();
     app.use(express.json());
     app.use('/api/recommendations', require('../routes/recommendations'));
   });
 
   afterAll(() => {
-    // Restore data files
     fs.writeFileSync(SCHEMES_FILE, originalSchemesData);
   });
 
@@ -77,17 +73,12 @@ describe('Recommendations Routes Integration Tests', () => {
       .query({
         age: 30,
         gender: 'Male',
-        income: 500000, // Exceeds incomeMax of 300000
+        income: 500000,
         state: 'Delhi',
         maritalStatus: 'Married'
       });
 
     expect(res.statusCode).toBe(200);
-    // Since income exceeds, matchScore will not include points for income, but might still have a score > 0.
-    // Wait, let's see: in recommendationEngine.js, the total score would be:
-    // age matches (20), gender matches (20), income does not match (0), maritalStatus matches (10), state matches (10).
-    // Total score is 20+20+0+10+10 = 60. Since 60 > 0, it is still returned.
-    // Let's verify that the score is indeed 60, and its explanations don't include positive income messages.
     expect(res.body.recommendations.length).toBe(1);
     expect(res.body.recommendations[0].matchScore).toBe(60);
     expect(res.body.recommendations[0].matchExplanation).not.toContain('Your annual income');

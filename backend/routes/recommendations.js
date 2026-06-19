@@ -31,8 +31,6 @@ router.get('/', (req, res) => {
     };
 
     const allSchemes = readSchemes();
-    
-    // Process each scheme to get score and explanation
     const recommendations = allSchemes.map(scheme => {
       const { score, explanations } = calculateMatchScore(userProfile, scheme);
       return {
@@ -42,10 +40,8 @@ router.get('/', (req, res) => {
       };
     });
 
-    // Sort by match score descending
     recommendations.sort((a, b) => b.matchScore - a.matchScore);
 
-    // Return schemes with score > 0 (or all if requested, but let's filter for quality)
     const filteredRecommendations = recommendations.filter(r => r.matchScore > 0);
 
     res.json({

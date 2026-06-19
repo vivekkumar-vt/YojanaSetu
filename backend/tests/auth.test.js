@@ -4,7 +4,6 @@ const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 
-// Load environment variables
 dotenv.config();
 if (!process.env.JWT_SECRET) {
   process.env.JWT_SECRET = 'yojana_setu_super_secret_key_2026';
@@ -18,24 +17,20 @@ describe('Auth Routes Integration Tests', () => {
   let testUserToken = '';
 
   beforeAll(() => {
-    // 1. Back up users.json
     if (fs.existsSync(USERS_FILE)) {
       originalUsersData = fs.readFileSync(USERS_FILE, 'utf-8');
     } else {
       originalUsersData = '[]';
     }
 
-    // 2. Setup a clean test users database
     fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2));
 
-    // 3. Create Express app
     app = express();
     app.use(express.json());
     app.use('/api/auth', require('../routes/auth'));
   });
 
   afterAll(() => {
-    // Restore original users.json
     fs.writeFileSync(USERS_FILE, originalUsersData);
   });
 
@@ -70,7 +65,6 @@ describe('Auth Routes Integration Tests', () => {
       expect(res.body.user.email).toBe('test@example.com');
       expect(res.body.user.savedSchemes).toEqual([]);
 
-      // Save token for subsequent tests
       testUserToken = res.body.token;
     });
 

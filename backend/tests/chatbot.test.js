@@ -31,24 +31,20 @@ describe('Chatbot Routes Integration Tests', () => {
   ];
 
   beforeAll(() => {
-    // 1. Back up data files
     if (fs.existsSync(SCHEMES_FILE)) {
       originalSchemesData = fs.readFileSync(SCHEMES_FILE, 'utf-8');
     } else {
       originalSchemesData = '[]';
     }
 
-    // 2. Setup mock data
     fs.writeFileSync(SCHEMES_FILE, JSON.stringify(mockSchemes, null, 2));
 
-    // 3. Create express app
     app = express();
     app.use(express.json());
     app.use('/api/chatbot', require('../routes/chatbot'));
   });
 
   afterAll(() => {
-    // Restore data files
     fs.writeFileSync(SCHEMES_FILE, originalSchemesData);
   });
 

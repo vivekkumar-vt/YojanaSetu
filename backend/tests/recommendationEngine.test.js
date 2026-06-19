@@ -41,7 +41,7 @@ describe('Recommendation Engine Unit Tests', () => {
 
   test('should penalize age if out of range', () => {
     const user = {
-      age: 15, // Out of range
+      age: 15,
       gender: "Male",
       income: 300000,
       maritalStatus: "Single",
@@ -49,23 +49,20 @@ describe('Recommendation Engine Unit Tests', () => {
     };
 
     const result = calculateMatchScore(user, mockScheme);
-    // Perfect match is 100, age has 20 points weight, so score should be 80.
     expect(result.score).toBe(80);
-    // Explanations filter only includes positive matches, so age explanation (negative) should be filtered out.
     expect(result.explanations.some(e => e.includes("age"))).toBe(false);
   });
 
   test('should penalize gender if out of range', () => {
     const user = {
       age: 25,
-      gender: "Other", // Out of range
+      gender: "Other",
       income: 300000,
       maritalStatus: "Single",
       state: "Karnataka"
     };
 
     const result = calculateMatchScore(user, mockScheme);
-    // Gender weight is 20, so score should be 80.
     expect(result.score).toBe(80);
     expect(result.explanations.some(e => e.includes("gender"))).toBe(false);
   });
@@ -74,13 +71,12 @@ describe('Recommendation Engine Unit Tests', () => {
     const user = {
       age: 25,
       gender: "Male",
-      income: 600000, // Out of range
+      income: 600000,
       maritalStatus: "Single",
       state: "Karnataka"
     };
 
     const result = calculateMatchScore(user, mockScheme);
-    // Income weight is 40, so score should be 60.
     expect(result.score).toBe(60);
     expect(result.explanations.some(e => e.includes("income"))).toBe(false);
   });
@@ -90,12 +86,11 @@ describe('Recommendation Engine Unit Tests', () => {
       age: 25,
       gender: "Male",
       income: 300000,
-      maritalStatus: "Widowed", // Out of range
+      maritalStatus: "Widowed",
       state: "Karnataka"
     };
 
     const result = calculateMatchScore(user, mockScheme);
-    // Marital status weight is 10, so score should be 90.
     expect(result.score).toBe(90);
     expect(result.explanations.some(e => e.includes("marital"))).toBe(false);
   });
@@ -124,7 +119,6 @@ describe('Recommendation Engine Unit Tests', () => {
   test('should handle missing fields gracefully', () => {
     const user = {};
     const result = calculateMatchScore(user, mockScheme);
-    // No fields match, score should be 5 (from default state point of 5).
     expect(result.score).toBe(5);
   });
 });

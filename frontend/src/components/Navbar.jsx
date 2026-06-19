@@ -68,15 +68,15 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-0.5">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                   isActive(item.href)
-                    ? 'text-orange-700 bg-orange-50'
-                    : 'text-slate-600 hover:text-orange-600 hover:bg-orange-50/60'
+                    ? 'text-orange-600'
+                    : 'text-slate-600 hover:text-orange-500'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -84,7 +84,7 @@ const Navbar = () => {
                 {isActive(item.href) && (
                   <motion.div
                     layoutId="nav-pill"
-                    className="absolute inset-0 rounded-xl bg-orange-100/60 -z-10"
+                    className="absolute inset-0 rounded-xl bg-orange-100/70 -z-10 border border-orange-200/40"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -98,14 +98,21 @@ const Navbar = () => {
               <>
                 <Link
                   to="/dashboard"
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  className={`relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                     isActive('/dashboard')
-                      ? 'bg-orange-100 text-orange-700'
-                      : 'text-slate-600 hover:bg-slate-100'
+                      ? 'text-orange-600'
+                      : 'text-slate-600 hover:text-orange-500'
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   Dashboard
+                  {isActive('/dashboard') && (
+                    <motion.div
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-xl bg-orange-100/70 -z-10 border border-orange-200/40"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
                 </Link>
 
                 <div className="flex items-center gap-2 pl-3 border-l border-slate-200">

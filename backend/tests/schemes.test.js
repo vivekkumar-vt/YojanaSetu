@@ -62,7 +62,6 @@ describe('Schemes Routes Integration Tests', () => {
   ];
 
   beforeAll(() => {
-    // 1. Back up data files
     if (fs.existsSync(SCHEMES_FILE)) {
       originalSchemesData = fs.readFileSync(SCHEMES_FILE, 'utf-8');
     } else {
@@ -75,25 +74,21 @@ describe('Schemes Routes Integration Tests', () => {
       originalUsersData = '[]';
     }
 
-    // 2. Setup mock data
     fs.writeFileSync(SCHEMES_FILE, JSON.stringify(mockSchemes, null, 2));
     fs.writeFileSync(USERS_FILE, JSON.stringify(mockUsers, null, 2));
 
-    // 3. Generate token
     mockToken = jwt.sign(
       { id: mockUserId, email: 'mock@example.com', name: 'Mock User' },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    // 4. Create express app
     app = express();
     app.use(express.json());
     app.use('/api/schemes', require('../routes/schemes'));
   });
 
   afterAll(() => {
-    // Restore data files
     fs.writeFileSync(SCHEMES_FILE, originalSchemesData);
     fs.writeFileSync(USERS_FILE, originalUsersData);
   });
@@ -167,7 +162,6 @@ describe('Schemes Routes Integration Tests', () => {
       expect(res.body.saved).toBe(false);
       expect(res.body.savedSchemes).not.toContain(1);
 
-      // Verify persistence in test users database
       const users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
       expect(users[0].savedSchemes).not.toContain(1);
     });

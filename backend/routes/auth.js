@@ -8,7 +8,6 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 const USERS_FILE = path.join(__dirname, '..', 'data', 'users.json');
 
-// Helper: Read users from JSON file
 const readUsers = () => {
   try {
     const data = fs.readFileSync(USERS_FILE, 'utf-8');
@@ -18,7 +17,6 @@ const readUsers = () => {
   }
 };
 
-// Helper: Write users to JSON file
 const writeUsers = (users) => {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
 };
@@ -28,7 +26,6 @@ router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validation
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email, and password are required.' });
     }
@@ -39,17 +36,14 @@ router.post('/register', async (req, res) => {
 
     const users = readUsers();
 
-    // Check if user already exists
     const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (existingUser) {
       return res.status(400).json({ message: 'An account with this email already exists.' });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user
     const newUser = {
       id: Date.now().toString(),
       name,
@@ -62,7 +56,6 @@ router.post('/register', async (req, res) => {
     users.push(newUser);
     writeUsers(users);
 
-    // Generate token
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, name: newUser.name },
       process.env.JWT_SECRET,
@@ -95,19 +88,16 @@ router.post('/login', async (req, res) => {
 
     const users = readUsers();
 
-    // Find user
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password.' });
     }
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password.' });
     }
 
-    // Generate token
     const token = jwt.sign(
       { id: user.id, email: user.email, name: user.name },
       process.env.JWT_SECRET,

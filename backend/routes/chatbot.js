@@ -25,8 +25,6 @@ router.post('/', (req, res) => {
 
     const schemes = readSchemes();
     const query = message.toLowerCase();
-
-    // Basic keyword mapping
     const keywords = {
       'student': ['education', 'scholarship', 'university', 'college', 'school'],
       'farmer': ['agriculture', 'kisan', 'farm', 'crop', 'land'],
@@ -39,7 +37,6 @@ router.post('/', (req, res) => {
 
     let matchedCategory = null;
     
-    // Greeting check
     if (query.match(/^(hi|hello|hey|namaste|greetings)/)) {
       return res.json({
         reply: "Namaste! I'm your Yojana Setu Assistant. How can I help you find the right government schemes today? You can ask me about scholarships, farming, health, or business loans.",
@@ -47,7 +44,6 @@ router.post('/', (req, res) => {
       });
     }
 
-    // Thanks check
     if (query.match(/^(thanks|thank you|thx|shukriya)/)) {
       return res.json({
         reply: "You're very welcome! Is there anything else you'd like to know about our schemes?",
@@ -83,7 +79,7 @@ router.post('/', (req, res) => {
 
     res.json({
       reply: botResponse,
-      schemes: results.slice(0, 3) // Return top 3 matches
+      schemes: results.slice(0, 3)
     });
   } catch (error) {
     console.error('Chatbot API error:', error);

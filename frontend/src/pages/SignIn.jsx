@@ -68,14 +68,14 @@ const SignIn = () => {
             </h1>
             <p className="text-slate-400 text-sm">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+              <Link to="/signup" className="font-bold text-orange-400 hover:text-orange-300 transition-colors">
                 Register here
               </Link>
             </p>
           </div>
 
           {/* Card */}
-          <div className="bg-white/[0.06] backdrop-blur-2xl rounded-3xl border border-white/10 p-8 shadow-2xl">
+          <div className="bg-white/[0.08] backdrop-blur-2xl rounded-3xl border border-white/15 p-8 shadow-2xl shadow-black/40">
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -91,20 +91,20 @@ const SignIn = () => {
             </AnimatePresence>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="email" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+              <div className="text-left">
+                <label htmlFor="email" className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                   Email Address
                 </label>
                 <input
                   id="email" name="email" type="email" required
                   value={formData.email} onChange={handleChange}
                   placeholder="you@example.com"
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 text-white px-4 py-3.5 text-sm placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full rounded-2xl border border-white/20 bg-white/12 text-white px-4 py-3.5 text-sm placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                 />
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+              <div className="text-left">
+                <label htmlFor="password" className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -113,10 +113,10 @@ const SignIn = () => {
                     type={showPassword ? 'text' : 'password'}
                     required value={formData.password} onChange={handleChange}
                     placeholder="Enter your password"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 text-white px-4 py-3.5 pr-12 text-sm placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full rounded-2xl border border-white/20 bg-white/12 text-white px-4 py-3.5 pr-12 text-sm placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors">
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 transition-colors">
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
@@ -124,9 +124,9 @@ const SignIn = () => {
 
               <motion.button
                 type="submit" disabled={isLoading}
-                whileHover={!isLoading ? { scale: 1.02, y: -2 } : {}}
+                whileHover={!isLoading ? { scale: 1.02, y: -1 } : {}}
                 whileTap={!isLoading ? { scale: 0.98 } : {}}
-                className="w-full flex justify-center items-center gap-2 rounded-2xl gradient-bg px-4 py-4 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                className="w-full flex justify-center items-center gap-2 rounded-2xl gradient-bg px-4 py-4 text-sm font-bold text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
               >
                 {isLoading ? (
                   <>
@@ -143,14 +143,14 @@ const SignIn = () => {
             </form>
 
             <div className="mt-6 pt-6 border-t border-white/10 text-center">
-              <Link to="/" className="text-sm font-medium text-slate-500 hover:text-white transition-colors">
+              <Link to="/" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
                 ← Back to Home
               </Link>
             </div>
           </div>
 
-          <p className="mt-6 text-center text-xs text-slate-600 flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+          <p className="mt-6 text-center text-xs text-slate-500 flex items-center justify-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-orange-500" />
             Secure login · Your data is always protected
           </p>
         </motion.div>

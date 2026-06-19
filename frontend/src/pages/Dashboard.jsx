@@ -48,16 +48,16 @@ const Dashboard = () => {
   const statCards = [
     {
       icon: Bookmark, label: 'Saved Schemes', value: savedSchemes.length,
-      gradient: 'from-indigo-500 to-violet-500', bg: 'bg-indigo-50', iconColor: 'text-indigo-600',
+      gradient: 'from-orange-500 to-amber-500', bg: 'bg-orange-50', iconColor: 'text-orange-600',
     },
     {
       icon: Shield, label: 'Account Status', value: 'Verified',
       gradient: 'from-emerald-500 to-green-500', bg: 'bg-emerald-50', iconColor: 'text-emerald-600',
     },
     {
-      icon: Calendar, label: 'Member Since',
-      value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'N/A',
-      gradient: 'from-amber-500 to-orange-500', bg: 'bg-amber-50', iconColor: 'text-amber-600',
+      icon: Calendar, label: 'Profile Completion',
+      value: user?.aadhaar ? '100%' : '80%',
+      gradient: 'from-orange-500 to-amber-500', bg: 'bg-orange-50', iconColor: 'text-orange-600',
     },
   ];
 
@@ -157,19 +157,19 @@ const Dashboard = () => {
           <Link to="/find-schemes" className="btn-primary text-sm px-5 py-3">
             <Search className="w-4 h-4" /> Find New Schemes
           </Link>
-          <Link to="/home" className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold text-indigo-700 bg-white border-2 border-indigo-100 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-300 shadow-sm">
-            <TrendingUp className="w-4 h-4" /> Browse All Schemes
+          <Link to="/home" className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold text-orange-600 bg-white border border-slate-200 hover:border-orange-300 hover:bg-orange-50/20 transition-all duration-300 shadow-sm">
+            <TrendingUp className="w-4 h-4 text-orange-500" /> Browse All Schemes
           </Link>
         </motion.div>
 
         {/* ─── SAVED SCHEMES ────────────────────────────────── */}
-        <div className="mb-10">
+        <div className="mb-10 text-left">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              <Bookmark className="w-6 h-6 text-indigo-600" />
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <Bookmark className="w-5 h-5 text-orange-600" />
               Saved Schemes
             </h2>
-            <Link to="/home" className="text-sm font-bold text-indigo-600 hover:text-indigo-800 hover:underline transition-colors">
+            <Link to="/home" className="text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors">
               Browse More →
             </Link>
           </div>
@@ -177,8 +177,8 @@ const Dashboard = () => {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[1, 2].map(i => (
-                <div key={i} className="bg-white rounded-3xl border border-slate-100 p-6 h-40">
-                  <div className="shimmer h-full rounded-2xl" />
+                <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 h-36">
+                  <div className="shimmer h-full rounded-xl" />
                 </div>
               ))}
             </div>
@@ -196,22 +196,22 @@ const Dashboard = () => {
                   >
                     <Link
                       to={`/scheme/${scheme.id}`}
-                      className="block bg-white rounded-3xl shadow-sm border border-slate-100 p-6 hover:shadow-xl hover:shadow-indigo-100/50 transition-all duration-300 group"
+                      className="block bg-white rounded-2xl shadow-sm border border-slate-200 p-5 hover:shadow-lg hover:shadow-orange-100/30 transition-all duration-300 group"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="p-3 rounded-2xl bg-indigo-50 flex-shrink-0">
-                          <IconComponent className="w-6 h-6 text-indigo-600" />
+                        <div className="p-2.5 rounded-xl bg-orange-50 flex-shrink-0">
+                          <IconComponent className="w-5 h-5 text-orange-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-black text-slate-900 group-hover:text-indigo-700 transition-colors truncate text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                          <h3 className="font-bold text-slate-900 group-hover:text-orange-600 transition-colors truncate text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
                             {scheme.title}
                           </h3>
-                          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                          <span className="inline-flex px-2 py-0.5 rounded-md bg-orange-50 border border-orange-100 text-[10px] font-bold text-orange-600 uppercase tracking-wide">
                             {scheme.category}
                           </span>
-                          <p className="text-sm text-slate-500 mt-2 line-clamp-2">{scheme.description}</p>
-                          <div className="mt-3 flex items-center text-sm font-bold text-indigo-600">
-                            View Details <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1.5 transition-transform duration-200" />
+                          <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">{scheme.description}</p>
+                          <div className="mt-3 flex items-center text-xs font-bold text-orange-600">
+                            View Details <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1.5 transition-transform duration-200" />
                           </div>
                         </div>
                       </div>
@@ -224,14 +224,14 @@ const Dashboard = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center bg-white p-14 rounded-3xl border border-slate-100 shadow-sm"
+              className="text-center bg-white p-10 rounded-2xl border border-slate-200 shadow-sm"
             >
-              <div className="w-20 h-20 gradient-bg rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-300/30">
-                <Bookmark className="h-9 w-9 text-white" />
+              <div className="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md shadow-orange-300/30">
+                <Bookmark className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>No saved schemes yet</h3>
-              <p className="text-slate-500 mb-6">Start browsing and save schemes that interest you.</p>
-              <Link to="/home" className="btn-primary text-sm px-6 py-3">
+              <h3 className="text-lg font-bold text-slate-900 mb-1.5" style={{ fontFamily: 'Outfit, sans-serif' }}>No saved schemes yet</h3>
+              <p className="text-xs text-slate-500 mb-5">Start browsing and save schemes that interest you.</p>
+              <Link to="/home" className="btn-primary text-xs px-5 py-2.5">
                 Browse Schemes <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>

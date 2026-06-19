@@ -7,7 +7,6 @@ const router = express.Router();
 const SCHEMES_FILE = path.join(__dirname, '..', 'data', 'schemes.json');
 const USERS_FILE = path.join(__dirname, '..', 'data', 'users.json');
 
-// Helper functions
 const readSchemes = () => {
   try {
     const data = fs.readFileSync(SCHEMES_FILE, 'utf-8');
